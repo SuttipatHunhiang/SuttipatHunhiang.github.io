@@ -1,0 +1,24 @@
+{
+  "name": "my-portfolio",
+  "version": "1.0.0",
+  "description": "my first portfolio website.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SuttipatHunhiang/SuttipatHunhiang.github.io.git"
+  },
+  "author": "Suttipat Hunhiang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SuttipatHunhiang/SuttipatHunhiang.github.io/issues"
+  },
+  "homepage": "https://github.com/SuttipatHunhiang/SuttipatHunhiang.github.io#readme",
+  "dependencies": {
+    "bootstrap": "^5.3.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
