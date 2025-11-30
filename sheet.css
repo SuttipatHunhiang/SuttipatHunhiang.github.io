@@ -2,7 +2,7 @@
 
 /* --- 1. BASIC VARIABLES --- */
 :root {
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #0000cd 100%);
     --bg-color: #f4f7f6;
     --table-bg: #ffffff;
     --text-color: #333;
@@ -40,7 +40,7 @@ body {
 
 .back-link {
     text-decoration: none;
-    color: #764ba2;
+    color: #0000cd;
     font-weight: bold;
     font-size: 1rem;
 }
@@ -109,7 +109,7 @@ body {
 /* Style the first line (Name/ID) */
 .waffle td::first-line {
     font-weight: bold;
-    color: #764ba2;
+    color: #0000cd;
     font-size: 1.15rem;
 }
 
@@ -125,7 +125,7 @@ body {
     right: 10px;
     background: #f5f7fa;
     border: 1px solid #ddd;
-    color: #764ba2;
+    color: #0000cd;
     padding: 6px 12px;
     border-radius: 20px;
     font-family: 'Sarabun', sans-serif;
