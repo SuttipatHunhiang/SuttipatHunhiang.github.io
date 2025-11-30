@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap');
+
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #0000cd 100%);
+    --bg-color: #f4f7f6;
+    --table-bg: #ffffff;
+    --text-color: #333;
+    --border-radius: 12px;
+}
+
+/* --- Base Styles --- */
+body {
+    font-family: 'Sarabun', sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* --- Controls Container --- */
+.controls-container {
+    width: 100%;
+    max-width: 800px; /* Limits width on big screens */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Allows buttons to stack on tiny screens */
+    gap: 10px;
+}
+
+.back-link {
+    text-decoration: none;
+    color: #0000cd;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+/* --- Data Card Container --- */
+.ritz.grid-container {
+    background: transparent !important;
+    width: 100% !important;
+    max-width: 800px !important; /* Perfect reading width */
+    margin: 0 auto;
+}
+
+.waffle {
+    width: 100% !important;
+    background: transparent;
+    border-collapse: separate !important;
+    border-spacing: 0 15px !important; /* Space between cards */
+}
+
+/* Hide Google Sheet Garbage */
+.waffle thead, 
+.grid-container .row-headers-background,
+.grid-container .column-headers-background,
+.row-header-wrapper {
+    display: none !important; 
+}
+
+/* --- The Card Look --- */
+.waffle tr {
+    display: block; /* Turns table row into a block/card */
+    background: var(--table-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    margin-bottom: 15px;
+    position: relative; /* For button positioning */
+    height: auto !important; /* Force auto height */
+    transition: transform 0.2s;
+}
+
+.waffle tr:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+/* --- Text Inside the Card --- */
+.waffle td {
+    display: block;
+    width: auto !important; /* Override fixed width */
+    padding: 25px !important;
+    font-size: 1.1rem !important;
+    line-height: 1.6;
+    color: #444;
+    white-space: normal !important; /* Allow text to wrap */
+    overflow-wrap: break-word; /* Prevent long words from breaking layout */
+    border: none !important;
+}
+
+/* Highlight the first line (Name/ID) */
+.waffle td::first-line {
+    font-weight: bold;
+    color: #0000cd;
+    font-size: 1.2rem;
+}
+
+/* Hide empty cells */
+.waffle td:empty {
+    display: none;
+}
+
+/* --- Copy Button Styles --- */
+.card-copy-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: white;
+    border: 1px solid #eee;
+    color: #0000cd;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: 'Sarabun', sans-serif;
+    font-weight: bold;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    opacity: 0; /* Hidden on desktop until hover */
+    transition: opacity 0.2s, background 0.2s;
+    z-index: 10;
+}
+
+.waffle tr:hover .card-copy-btn {
+    opacity: 1;
+}
+
+/* =========================================
+   MOBILE RESPONSIVENESS (The Magic Part)
+   ========================================= */
+@media (max-width: 768px) {
+    
+    body {
+        padding: 10px; /* Less padding on phone screens */
+    }
+
+    .controls-container {
+        margin-bottom: 15px;
+    }
+
+    .waffle td {
+        padding: 20px !important;
+        padding-top: 45px !important; /* Make room for the button */
+        font-size: 1rem !important;
+    }
+
+    /* On phone, always show the copy button (no hover needed) */
+    .card-copy-btn {
+        opacity: 1;
+        top: 10px;
+        right: 10px;
+        background: #f5f7fa; /* Slight grey bg to make it pop */
+    }
+    
+    /* Adjust text size for first line */
+    .waffle td::first-line {
+        font-size: 1.1rem;
+    }
+}
