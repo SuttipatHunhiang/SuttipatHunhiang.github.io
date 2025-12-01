@@ -357,5 +357,70 @@
         alert("Use the buttons on each card to copy specific friend info!");
     }
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Select all rows
+        const rows = document.querySelectorAll('.waffle tr');
+
+        rows.forEach(row => {
+            const cell = row.querySelector('td');
+            
+            if (cell && cell.innerText.trim() !== "") {
+                // 1. GET ORIGINAL DATA
+                // We grab the full HTML (including the phone number)
+                let originalHTML = cell.innerHTML;
+
+                // 2. PREPARE CLIPBOARD TEXT (The full version)
+                // We clean it up now so it's ready to be copied later
+                let textForClipboard = originalHTML
+                    .replace(/<br\s*\/?>/gi, '\n') // Turn HTML breaks into Enter keys
+                    .replace(/<\/?[^>]+(>|$)/g, "") // Remove <div> or <span> tags
+                    .trim();
+
+                // 3. CREATE VISUAL HTML (The hidden version)
+                // We split the text into lines, and throw away the one with "เบอร์โทร"
+                let lines = originalHTML.split(/<br\s*\/?>/i);
+                
+                // Filter: Keep lines that DO NOT include "เบอร์โทร"
+                let visibleLines = lines.filter(line => !line.includes("เบอร์โทร"));
+                
+                // Put the visual text back into the box
+                cell.innerHTML = visibleLines.join('<br>');
+
+                // 4. CREATE THE BUTTON
+                const btn = document.createElement('button');
+                btn.className = 'card-copy-btn';
+                btn.innerHTML = '📋 Copy';
+                
+                // THIS IS THE SECRET: We store the FULL text inside the button hiddenly
+                btn.setAttribute('data-full-text', textForClipboard);
+                
+                // 5. CLICK EVENT
+                btn.onclick = function() {
+                    // We copy the HIDDEN full text, not the visible text
+                    const hiddenText = this.getAttribute('data-full-text');
+                    
+                    navigator.clipboard.writeText(hiddenText).then(() => {
+                        // Success Animation
+                        btn.innerHTML = '✔️ Copied!';
+                        btn.style.background = '#4cd964';
+                        btn.style.color = 'white';
+                        btn.style.borderColor = '#4cd964';
+                        
+                        setTimeout(() => {
+                            btn.innerHTML = '📋 Copy';
+                            btn.style.background = '';
+                            btn.style.color = '';
+                            btn.style.borderColor = '';
+                        }, 2000);
+                    });
+                };
+
+                // Add the button to the card
+                row.appendChild(btn);
+            }
+        });
+    });
+</script>
 </body>
 </html>
