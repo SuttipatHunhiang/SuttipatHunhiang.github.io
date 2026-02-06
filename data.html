@@ -4,7 +4,81 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Friends Data</title>
-    <link rel="stylesheet" href="sheet.css">
+    <!-- Basic styling included to ensure the page looks good independently -->
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 20px;
+        }
+        .data-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #4b5563;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .back-link:hover {
+            color: #111827;
+        }
+        .waffle {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 16px;
+        }
+        .waffle tr {
+            display: block;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .waffle td {
+            display: block;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #374151;
+        }
+        /* Hide the row numbers/headers for a cleaner card look */
+        .waffle th, .row-headers-background, .column-headers-background {
+            display: none;
+        }
+        
+        /* Button Styling */
+        .card-copy-btn {
+            margin-top: 12px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .card-copy-btn:hover {
+            background-color: #2563eb;
+            transform: translateY(-1px);
+        }
+        .card-copy-btn:active {
+            transform: translateY(0);
+        }
+    </style>
 </head>
 <body>
 
@@ -73,7 +147,7 @@
               <th id="1328949911R6" style="height: 162px;" class="row-headers-background">
                 <div class="row-header-wrapper" style="line-height: 162px">7</div>
               </th>
-              <td class="s0" dir="ltr">เลขที่ 7 <br>ชื่อ-นามสกุล นายพศินเหล่าพงศ์พันธ์ <br>ชื่อเล่น บี๋ <br>เบอร์โทร 0922935356 <br>คติประจำใจ เส้นชัย ไม่มาต้องไปหามัน </td>
+              <td class="s0" dir="ltr">เลขที่ 7 <br>ชื่อ-นามสกุล นายพศิน เหล่าพงศ์พันธ์ <br>ชื่อเล่น บี๋ <br>เบอร์โทร 0922935356 <br>คติประจำใจ เส้นชัย ไม่มาต้องไปหามัน </td>
               <td></td>
               <td></td>
             </tr>
@@ -305,58 +379,7 @@
         </table>
       </div>
       </div>
-      <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // 1. Select all rows in the table
-        const rows = document.querySelectorAll('.waffle tr');
 
-        rows.forEach(row => {
-            // Find the data cell (usually the first td)
-            const cell = row.querySelector('td');
-            
-            if (cell && cell.innerText.trim() !== "") {
-                // Create the button
-                const btn = document.createElement('button');
-                btn.className = 'card-copy-btn';
-                btn.innerHTML = '📋 Copy';
-                
-                // Add click event
-                btn.onclick = function() {
-                    // Get HTML content and replace <br> with newlines for clean text
-                    let text = cell.innerHTML;
-                    text = text.replace(/<br\s*\/?>/gi, '\n'); // Replace <br> with enter
-                    text = text.replace(/<\/?[^>]+(>|$)/g, ""); // Remove other HTML tags
-                    
-                    // Copy to clipboard
-                    navigator.clipboard.writeText(text).then(() => {
-                        // Visual feedback
-                        btn.innerHTML = '✔️ Copied!';
-                        btn.style.background = '#4cd964';
-                        btn.style.color = 'white';
-                        btn.style.borderColor = '#4cd964';
-                        
-                        setTimeout(() => {
-                            btn.innerHTML = '📋 Copy';
-                            btn.style.background = '';
-                            btn.style.color = '';
-                            btn.style.borderColor = '';
-                        }, 2000);
-                    });
-                };
-
-                // Add button to the row
-                row.appendChild(btn);
-            }
-        });
-    });
-
-    // Keep the "Copy All" function if you still want the top button
-    function copyTableData() {
-        // Logic to copy the whole table...
-        // (You can keep the previous logic here or remove the top button if you prefer)
-        alert("Use the buttons on each card to copy specific friend info!");
-    }
-</script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         // Select all rows
@@ -378,11 +401,14 @@
                     .trim();
 
                 // 3. CREATE VISUAL HTML (The hidden version)
-                // We split the text into lines, and throw away the one with "เบอร์โทร"
+                // We split the text into lines
                 let lines = originalHTML.split(/<br\s*\/?>/i);
                 
-                // Filter: Keep lines that DO NOT include "เบอร์โทร"
-                let visibleLines = lines.filter(line => !line.includes("เบอร์โทร"));
+                // Filter: Keep lines that DO NOT include "เบอร์โทร" AND DO NOT include "ชื่อ-นามสกุล"
+                let visibleLines = lines.filter(line => 
+                    !line.includes("เบอร์โทร") && 
+                    !line.includes("ชื่อ-นามสกุล")
+                );
                 
                 // Put the visual text back into the box
                 cell.innerHTML = visibleLines.join('<br>');
@@ -405,13 +431,11 @@
                         btn.innerHTML = '✔️ Copied!';
                         btn.style.background = '#4cd964';
                         btn.style.color = 'white';
-                        btn.style.borderColor = '#4cd964';
                         
                         setTimeout(() => {
                             btn.innerHTML = '📋 Copy';
                             btn.style.background = '';
                             btn.style.color = '';
-                            btn.style.borderColor = '';
                         }, 2000);
                     });
                 };
