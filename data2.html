@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class of 2568</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --accent: #ec4899;
+            --bg: #150B6B;
+            --card-bg: #7b8efa;
+            --text-main: #8ec4fa;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Header Styles */
+        header {
+            text-align: center;
+            padding: 2rem;
+            margin-bottom: 1rem;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Grid Layout */
+        .grid-container {
+            display: grid;
+            /* Wider columns for cards */
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1.5rem;
+            max-width: 1000px;
+            width: 90%;
+            padding-bottom: 4rem;
+        }
+
+        /* The Number Tokens (Card State) */
+        .friend-token {
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            /* Card styling updates */
+            border-radius: 15px;
+            aspect-ratio: 2/3;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 6px -1px rgb(17, 100, 255), 0 2px 4px -1px rgb(14, 58, 255);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .friend-token::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(223, 67, 67, 0.05), transparent);
+        }
+
+        /* Decorative label for the card */
+        .friend-token::after {
+            content: 'Class of 2568';
+            position: absolute;
+            bottom: 15px;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.6;
+            color: var(--primary);
+        }
+
+        .friend-token:hover {
+            transform: translateY(-5px) scale(1.05);
+            border-color: var(--accent);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.3);
+        }
+
+        .friend-token:hover::after {
+            color: var(--accent);
+            opacity: 1;
+        }
+
+        /* Hidden visibility for the token when it's currently being animated */
+        .friend-token.invisible {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Animation Overlay Stage */
+        #animation-stage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none; /* Let clicks pass through unless active */
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.5s ease;
+            
+            /* ADDED: Perspective creates the 3D depth for the flip */
+            perspective: 1200px;
+        }
+
+        #animation-stage.active {
+            background: rgba(0, 0, 0, 0.85);
+            pointer-events: auto;
+            backdrop-filter: blur(5px);
+        }
+
+        /* The Ghost Card (The element that actually flies) */
+        .ghost-card {
+            position: absolute;
+            /* Base styles match the token card */
+            border-radius: 15px;
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            transform-origin: center center;
+            /* Critical for the 3D flip effect */
+            transform-style: preserve-3d;
+            will-change: transform, top, left, width, height, border-radius;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+            
+            /* BUG FIX: Ensure content is clipped when shrinking */
+            overflow: hidden;
+
+            /* Enhanced transition timing */
+            transition: 
+                top 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+                left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+                width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+                height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+                transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+                border-radius 0.8s ease,
+                border-color 0.8s ease,
+                border-width 0.8s ease; 
+        }
+
+        /* Styles for the "Expanded" state of the ghost card */
+        .ghost-card.expanded {
+            /* NOTE: JS will now force these values to override inline styles */
+            width: 350px; 
+            height: 500px; 
+            border-radius: 20px;
+            
+            /* Visible border as requested */
+            border-color: var(--accent); 
+            border-width: 4px; 
+            
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            color: white; 
+            
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Inner Content of the Card */
+        .card-inner-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            
+            opacity: 0;
+            /* Delay fade in until spin finishes */
+            transition: opacity 0.3s ease 0.4s; 
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 2rem 1rem; 
+            text-align: center;
+            /* Pre-rotate content so it's correct after spin */
+            transform: rotateY(180deg); 
+        }
+
+        .ghost-card.expanded .card-inner-content {
+            opacity: 1;
+        }
+
+        /* Hide the number when expanded */
+        .ghost-card .token-number {
+            transition: opacity 0.2s;
+        }
+        .ghost-card.expanded .token-number {
+            opacity: 0;
+        }
+
+        /* Image Styling */
+        .profile-img {
+            width: 150px; 
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid var(--accent);
+            margin-bottom: 1rem;
+            margin-left: auto;
+            margin-right: auto;
+            object-fit: cover;
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+            background-color: #3584f3;
+            flex-shrink: 0; 
+        }
+
+        .friend-name {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .friend-motto {
+            font-style: italic;
+            color: var(--text-muted);
+            font-size: 1.25rem; 
+            line-height: 1.5;
+            position: relative;
+            padding: 0 10px;
+            text-align: center; 
+            max-width: 100%; 
+        }
+        
+        .friend-motto::before, .friend-motto::after {
+            content: '"';
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .close-hint {
+            margin-top: 2.5rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            opacity: 0.5;
+            cursor: pointer;
+        }
+
+        .close-hint:hover {
+            opacity: 1;
+            color: var(--text-main);
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Tweaks */
+        @media (max-width: 600px) {
+            .grid-container {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            }
+            .friend-token {
+                font-size: 1.8rem;
+            }
+            .ghost-card.expanded {
+                width: 90vw;
+                height: 60vh;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="data-container"><a href="index.html" class="back-link">← Back to Home</a></div>
+        <h1>Class of 2568</h1>
+        <p class="subtitle">Click a card to reveal the memory.</p>
+    </header>
+
+    <div class="grid-container" id="grid">
+        <!-- Grid items will be injected here by JS -->
+    </div>
+
+    <!-- The overlay stage for animations -->
+    <div id="animation-stage">
+        <!-- The ghost card will be created dynamically here -->
+    </div>
+
+    <script>
+        // 1. Data Source
+        const friendsData = [
+            { id: 1, name: "เจ", motto: "งูเห็นนมไก่ไก่เห็นนมงู", seed: "01" },
+            { id: 2, name: "เฟรม", motto: "ชีวิตดีขึ้นทันทีที่หลับ", seed: "02" },
+            { id: 3, name: "จูล", motto: "รักนี้ไม่มีค่า มาม่าต้มยำกุ้ง", seed: "03" },
+            { id: 4, name: "ปั้น", motto: "You don’t need to be perfect just be you.", seed: "04" },
+            { id: 5, name: "อิกคิว", motto: "G-beatมันดีดไม่เท่าม้า", seed: "05" },
+            { id: 6, name: "ตี๋", motto: "แว่นมานี่มา", seed: "06" },
+            { id: 7, name: "บี๋", motto: "เส้นชัย ไม่มาต้องไปหามัน", seed: "07" },
+            { id: 8, name: "บ๊อบ", motto: "ทำวันนี้ให้ดีที่สุด", seed: "08" },
+            { id: 9, name: "คูเปอร์", motto: "อะไรที่พอดี ดีที่สุดแล้ว", seed: "09" },
+            { id: 10, name: "พู", motto: "ชอบก็จัดประหยัดทำไม", seed: "10" },
+            { id: 11, name: "ภูมิ", motto: "I don't trust myself with a weapon. I would like killing too much.", seed: "11" },
+            { id: 12, name: "อาชิ", motto: "ถึงใครไม่กล้า แต่นิกกล้า", seed: "12" },
+            { id: 13, name: "เจ้าพระยา", motto: "ชีวิตคือเกมHARDCORE", seed: "13" },
+            { id: 14, name: "ปลื้ม", motto: "ชาตินี้พี่ต้องรวย", seed: "14" },
+            { id: 15, name: "ธาม", motto: "โอกาสเข้ามาก็คว้าเอาไว้ เพราะมันอาจจะมีเเค่ครั้งเดียว", seed: "15" },
+            { id: 16, name: "เพชร", motto: "เสียงประทัดดังกังวานบ้านป้า เอาไข่แดงไปลอยกับหมา", seed: "16" },
+            { id: 17, name: "อู๊ด", motto: "สิ่งเดียวที่ข้าพเจ้ารู้คือข้าพเจ้าไม่รู้อะไรเลย", seed: "17" },
+            { id: 18, name: "บุ้งกี๋", motto: "My homework isn't done, but I sure am.", seed: "18" },
+            { id: 19, name: "ฟ้าใส", motto: "Work hard, travel harder.", seed: "19" },
+            { id: 20, name: "แบม", motto: "Make a dream real.", seed: "20" },
+            { id: 21, name: "ษา", motto: "Simply Lovely.", seed: "21" },
+            { id: 22, name: "พลอย", motto: "Keep doing your best everyday and if no one is proud of you, be proud of yourself.", seed: "22" },
+            { id: 23, name: "น้ำตาล", motto: "'Cause baby, you&#39;re a firework.", seed: "23" },
+            { id: 24, name: "ต้นน้ำ", motto: "Don't help him, Be the reason he needs help.", seed: "24" },
+            { id: 25, name: "ต้นน้ำ", motto: "The sun sets to rise again.", seed: "25" },
+            { id: 26, name: "อิงอิง", motto: "Your time is limited, so don't waste it living someone else's life.", seed: "26" },
+            { id: 27, name: "เนย", motto: "Life is short. Eat dessert first.", seed: "27" },
+            { id: 28, name: "เรมี่", motto: "ฝันให้สุด แล้วหยุดที่ตู้เอทีเอ็ม", seed: "28" },
+            { id: 29, name: "พรีม", motto: "คบกับเรา เราไม่คุยกับใคร ไม่คุยกับเธอด้วย เราจะนอน", seed: "29" },
+            { id: 30, name: "นาย", motto: "Dream always comes true.", seed: "30" },
+            { id: 31, name: "จินจิน", motto: "เชื่อในความพยายามของตัวเอง", seed: "31" },
+            { id: 32, name: "อาย", motto: "Nothing’s lonelier than a party.", seed: "32" },
+            { id: 33, name: "พิกกี้", motto: "Felt cute, might delete later.", seed: "33" },
+            { id: 34, name: "อีฟ", motto: "My motivation is like Wi-Fi—works best near food.", seed: "34" }
+        ];
+
+        const gridContainer = document.getElementById('grid');
+        const stage = document.getElementById('animation-stage');
+        let isAnimating = false;
+
+        // 2. Initialize Grid
+        function initGrid() {
+            friendsData.forEach(friend => {
+                const token = document.createElement('div');
+                token.classList.add('friend-token');
+                token.innerText = friend.id;
+                token.dataset.id = friend.id;
+                token.setAttribute('role', 'button');
+                token.setAttribute('aria-label', `Reveal friend number ${friend.id}`);
+                
+                token.addEventListener('click', (e) => handleTokenClick(e, friend, token));
+                
+                gridContainer.appendChild(token);
+            });
+        }
+
+        // 3. Handle Animation Logic
+        function handleTokenClick(e, friendData, originalToken) {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            document.body.style.overflow = 'hidden';
+
+            const rect = originalToken.getBoundingClientRect();
+            
+            const ghost = document.createElement('div');
+            ghost.classList.add('ghost-card');
+            
+            // Initial Position (Inline styles set here)
+            ghost.style.top = `${rect.top}px`;
+            ghost.style.left = `${rect.left}px`;
+            ghost.style.width = `${rect.width}px`;
+            ghost.style.height = `${rect.height}px`;
+
+            const numberSpan = document.createElement('span');
+            numberSpan.classList.add('token-number');
+            numberSpan.innerText = friendData.id;
+            ghost.appendChild(numberSpan);
+
+            const avatarUrl = `./assets/${friendData.seed}.jpg`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.classList.add('card-inner-content');
+            contentDiv.innerHTML = `
+                <img src="${avatarUrl}" class="profile-img">
+                <div class="friend-name">${friendData.name}</div>
+                <div class="friend-motto">${friendData.motto}</div>
+                <div class="close-hint">Click anywhere to close</div>
+            `;
+            ghost.appendChild(contentDiv);
+
+            stage.appendChild(ghost);
+            stage.classList.add('active');
+
+            originalToken.classList.add('invisible');
+
+            void ghost.offsetWidth;
+
+            const finalWidth = 350; 
+            const finalHeight = 500; 
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+
+            const targetTop = (windowHeight - finalHeight) / 2;
+            const targetLeft = (windowWidth - finalWidth) / 2;
+
+            requestAnimationFrame(() => {
+                ghost.classList.add('expanded');
+                
+                // Explicitly overwrite the inline styles so the transition happens
+                ghost.style.width = `${finalWidth}px`;
+                ghost.style.height = `${finalHeight}px`;
+                
+                ghost.style.top = `${targetTop}px`;
+                ghost.style.left = `${targetLeft}px`;
+                ghost.style.transform = `rotate(360deg) rotateY(180deg)`; 
+            });
+
+            stage.onclick = () => {
+                if (!isAnimating) {
+                     closeCard(ghost, originalToken);
+                }
+            };
+            
+            setTimeout(() => { isAnimating = false; }, 800);
+        }
+
+        function closeCard(ghost, originalToken) {
+            isAnimating = true;
+
+            const content = ghost.querySelector('.card-inner-content');
+            // FIX: Remove delay for closing so content vanishes immediately
+            // This prevents content from staying visible while borders shrink
+            if(content) {
+                content.style.transition = 'opacity 0.2s ease';
+                content.style.opacity = '0';
+            }
+            
+            const number = ghost.querySelector('.token-number');
+            if(number) number.style.opacity = '1';
+
+            const originalRect = originalToken.getBoundingClientRect();
+
+            requestAnimationFrame(() => {
+                // BUG FIX: Change the transition to a smooth 'ease' for closing
+                ghost.style.transition = 'all 0.8s ease';
+                
+                ghost.classList.remove('expanded');
+                
+                // Reset width/height to original size to animate back
+                ghost.style.width = `${originalRect.width}px`;
+                ghost.style.height = `${originalRect.height}px`;
+                
+                ghost.style.top = `${originalRect.top}px`;
+                ghost.style.left = `${originalRect.left}px`;
+                
+                // Unwind rotation gracefully
+                ghost.style.transform = `rotate(0deg) rotateY(0deg)`;
+            });
+
+            setTimeout(() => {
+                stage.classList.remove('active');
+                originalToken.classList.remove('invisible');
+                ghost.remove();
+                
+                document.body.style.overflow = '';
+                
+                isAnimating = false;
+                stage.onclick = null;
+            }, 800);
+        }
+
+        window.addEventListener('DOMContentLoaded', initGrid);
+
+    </script>
+</body>
+</html>
