@@ -6,13 +6,20 @@
     <title>Class of 2568</title>
     <style>
         :root {
-            --primary: #6366f1;
-            --secondary: #a855f7;
+            /* SCHOOL COLORS */
+            --school-main: #150B6B;
+            --school-dark: #0a0536;
+            --gold-accent: #FFD700; /* Gold pairs perfectly with Navy */
+            --white-accent: #ffffff;
+            
+            --primary: var(--gold-accent); 
+            --secondary: #4f46e5;
             --accent: #ec4899;
-            --bg: #150B6B;
-            --card-bg: #7b8efa;
-            --text-main: #8ec4fa;
-            --text-muted: #94a3b8;
+            
+            --bg: var(--school-dark);
+            --card-bg: #1c1478; /* Slightly lighter than main for contrast */
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
         }
 
         * {
@@ -23,7 +30,15 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            
+            /* DECORATED BACKGROUND */
             background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 50% 0%, #2a1b8f 0%, transparent 70%),
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+            
             color: var(--text-main);
             min-height: 100vh;
             overflow-x: hidden;
@@ -35,33 +50,75 @@
         /* Header Styles */
         header {
             text-align: center;
-            padding: 2rem;
+            padding: 3rem 1rem;
             margin-bottom: 1rem;
             animation: fadeInDown 1s ease-out;
+            position: relative;
+        }
+        
+        /* Decorative Header Underline */
+        header::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--gold-accent);
+            margin: 1rem auto 0;
+            border-radius: 2px;
         }
 
         h1 {
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: 800;
-            background: linear-gradient(to right, var(--primary), var(--accent));
+            /* Gold Gradient Text */
+            background: linear-gradient(to bottom, #fff, var(--gold-accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
             letter-spacing: -1px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
         p.subtitle {
             color: var(--text-muted);
-            font-size: 1.1rem;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Back to Home Button */
+        .back-home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: var(--gold-accent);
+            text-decoration: none;
+            border: 1px solid var(--gold-accent);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 10;
+            background: rgba(10, 5, 54, 0.6); /* --school-dark with opacity */
+            backdrop-filter: blur(4px);
+        }
+
+        .back-home-btn:hover {
+            background: var(--gold-accent);
+            color: var(--school-main);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            transform: translateY(-2px);
         }
 
         /* Grid Layout */
         .grid-container {
             display: grid;
-            /* Wider columns for cards */
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 1.5rem;
-            max-width: 1000px;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 2rem;
+            max-width: 1100px;
             width: 90%;
             padding-bottom: 4rem;
         }
@@ -69,9 +126,12 @@
         /* The Number Tokens (Card State) */
         .friend-token {
             background: var(--card-bg);
-            border: 2px solid var(--primary);
-            /* Card styling updates */
-            border-radius: 15px;
+            /* Double Border Decoration */
+            border: 2px solid var(--school-main);
+            outline: 2px solid var(--gold-accent);
+            outline-offset: -6px;
+            
+            border-radius: 12px;
             aspect-ratio: 2/3;
             display: flex;
             flex-direction: column;
@@ -79,10 +139,10 @@
             align-items: center;
             font-size: 2.5rem;
             font-weight: 800;
-            color: var(--text-muted);
+            color: var(--gold-accent); /* Gold Numbers */
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 6px -1px rgb(17, 100, 255), 0 2px 4px -1px rgb(14, 58, 255);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
             position: relative;
             overflow: hidden;
         }
@@ -91,30 +151,26 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(223, 67, 67, 0.05), transparent);
+            background: radial-gradient(circle at top right, rgba(255, 215, 0, 0.1), transparent);
         }
 
         /* Decorative label for the card */
         .friend-token::after {
-            content: 'Class of 2568';
+            content: 'Class of 26';
             position: absolute;
             bottom: 15px;
             font-size: 0.6rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            opacity: 0.6;
-            color: var(--primary);
+            opacity: 0.8;
+            color: var(--white-accent);
         }
 
         .friend-token:hover {
-            transform: translateY(-5px) scale(1.05);
-            border-color: var(--accent);
-            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.3);
-        }
-
-        .friend-token:hover::after {
-            color: var(--accent);
-            opacity: 1;
+            transform: translateY(-8px) scale(1.02);
+            background: var(--school-main);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 215, 0, 0.3);
+            outline-color: var(--white-accent);
         }
 
         /* Hidden visibility for the token when it's currently being animated */
@@ -130,46 +186,45 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            pointer-events: none; /* Let clicks pass through unless active */
+            pointer-events: none;
             z-index: 100;
             display: flex;
             justify-content: center;
             align-items: center;
             transition: background 0.5s ease;
-            
-            /* ADDED: Perspective creates the 3D depth for the flip */
             perspective: 1200px;
         }
 
         #animation-stage.active {
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(5, 2, 26, 0.9); /* Darker overlay matching school theme */
             pointer-events: auto;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
         }
 
         /* The Ghost Card (The element that actually flies) */
         .ghost-card {
             position: absolute;
-            /* Base styles match the token card */
-            border-radius: 15px;
+            border-radius: 12px;
             background: var(--card-bg);
-            border: 2px solid var(--primary);
+            
+            /* Initial State Decoration Matches Token */
+            border: 2px solid var(--school-main);
+            outline: 2px solid var(--gold-accent);
+            outline-offset: -6px;
+            
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 2.5rem;
             font-weight: 800;
-            color: var(--text-muted);
+            color: var(--gold-accent);
             transform-origin: center center;
-            /* Critical for the 3D flip effect */
             transform-style: preserve-3d;
-            will-change: transform, top, left, width, height, border-radius;
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+            will-change: transform, top, left, width, height;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
             
-            /* BUG FIX: Ensure content is clipped when shrinking */
             overflow: hidden;
 
-            /* Enhanced transition timing */
             transition: 
                 top 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
                 left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -177,8 +232,8 @@
                 height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
                 transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
                 border-radius 0.8s ease,
-                border-color 0.8s ease,
-                border-width 0.8s ease; 
+                outline-offset 0.8s ease,
+                background-color 0.8s ease; 
         }
 
         /* Styles for the "Expanded" state of the ghost card */
@@ -188,14 +243,15 @@
             height: 500px; 
             border-radius: 20px;
             
-            /* Visible border as requested */
-            border-color: var(--accent); 
-            border-width: 4px; 
+            /* Expanded Decoration */
+            border: 4px solid var(--gold-accent); 
+            outline: 2px solid rgba(255, 255, 255, 0.2);
+            outline-offset: 6px; /* Push outline outside */
             
-            background: linear-gradient(145deg, #1e293b, #0f172a);
+            background: linear-gradient(160deg, #1c1478, #000000);
             color: white; 
             
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.2);
         }
 
         /* Inner Content of the Card */
@@ -203,9 +259,7 @@
             position: absolute;
             top: 0;
             left: 0;
-            
             opacity: 0;
-            /* Delay fade in until spin finishes */
             transition: opacity 0.3s ease 0.4s; 
             display: flex;
             flex-direction: column;
@@ -213,9 +267,8 @@
             justify-content: center;
             width: 100%;
             height: 100%;
-            padding: 2rem 1rem; 
+            padding: 2rem; 
             text-align: center;
-            /* Pre-rotate content so it's correct after spin */
             transform: rotateY(180deg); 
         }
 
@@ -233,57 +286,61 @@
 
         /* Image Styling */
         .profile-img {
-            width: 150px; 
-            height: 150px;
+            width: 160px; 
+            height: 160px;
             border-radius: 50%;
-            border: 4px solid var(--accent);
-            margin-bottom: 1rem;
-            margin-left: auto;
-            margin-right: auto;
+            border: 4px solid var(--gold-accent); /* Gold border for image */
+            margin-bottom: 1.5rem;
             object-fit: cover;
-            box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
-            background-color: #3584f3;
-            flex-shrink: 0; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            background-color: #0a0536;
         }
 
         .friend-name {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 700;
             margin-bottom: 1rem;
-            color: var(--primary);
+            color: var(--gold-accent); /* Gold Name */
             text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .friend-motto {
             font-style: italic;
             color: var(--text-muted);
-            font-size: 1.25rem; 
-            line-height: 1.5;
+            font-size: 1.2rem; 
+            line-height: 1.6;
             position: relative;
             padding: 0 10px;
             text-align: center; 
-            max-width: 100%; 
+            max-width: 100%;
+            font-weight: 300;
         }
         
         .friend-motto::before, .friend-motto::after {
             content: '"';
-            color: var(--accent);
+            color: var(--gold-accent);
             font-weight: bold;
+            font-size: 1.5rem;
         }
 
         .close-hint {
-            margin-top: 2.5rem;
-            font-size: 0.8rem;
+            margin-top: 3rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--text-muted);
-            opacity: 0.5;
+            letter-spacing: 3px;
+            color: rgba(255,255,255,0.4);
             cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s;
         }
 
         .close-hint:hover {
-            opacity: 1;
-            color: var(--text-main);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-color: white;
         }
 
         @keyframes fadeInDown {
@@ -294,14 +351,20 @@
         /* Responsive Tweaks */
         @media (max-width: 600px) {
             .grid-container {
-                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
             }
             .friend-token {
                 font-size: 1.8rem;
             }
             .ghost-card.expanded {
-                width: 90vw;
+                width: 85vw;
                 height: 60vh;
+            }
+            .back-home-btn {
+                top: 15px;
+                left: 15px;
+                padding: 6px 12px;
+                font-size: 0.7rem;
             }
         }
     </style>
@@ -309,7 +372,7 @@
 <body>
 
     <header>
-        <div class="data-container"><a href="index.html" class="back-link">← Back to Home</a></div>
+        <a href="index.html" class="back-home-btn">← Back to Home</a>
         <h1>Class of 2568</h1>
         <p class="subtitle">Click a card to reveal the memory.</p>
     </header>
