@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pocket Prompter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        .mirrored {
+            transform: scaleX(-1);
+        }
+
+        /* Smooth scrolling behavior */
+        html {
+            scroll-behavior: auto; /* We handle scroll via JS for precision */
+        }
+
+        body {
+            overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans h-screen w-full overflow-hidden selection:bg-blue-500 selection:text-white">
+
+    <!-- APP CONTAINER -->
+    <div id="app" class="relative h-full w-full flex flex-col">
+
+        <!-- EDITOR VIEW -->
+        <div id="editor-view" class="flex flex-col h-full p-4 transition-opacity duration-300">
+            <header class="mb-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-blue-400"><i class="fas fa-microphone-alt mr-2"></i>Prompter</h1>
+                <button onclick="loadSampleText()" class="text-xs text-gray-400 hover:text-white underline">Load Sample</button>
+            </header>
+            
+            <div class="flex-grow relative">
+                <textarea id="script-input" 
+                    class="w-full h-full bg-gray-800 rounded-xl p-4 text-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500"
+                    placeholder="Paste your English speech here..."></textarea>
+            </div>
+
+            <div class="mt-4">
+                <button id="start-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg transform transition active:scale-95 text-xl flex items-center justify-center">
+                    <i class="fas fa-play mr-2"></i> Start Prompter
+                </button>
+            </div>
+        </div>
+
+        <!-- PROMPTER VIEW (Hidden by default) -->
+        <div id="prompter-view" class="fixed inset-0 bg-black z-50 hidden flex flex-col">
+            
+            <!-- Guide Line -->
+            <div class="absolute top-1/3 left-0 w-full flex items-center pointer-events-none z-10 opacity-30">
+                <div class="h-0.5 bg-red-500 w-4"></div>
+                <div class="h-0.5 bg-red-500 flex-grow border-t border-dashed border-red-500"></div>
+                <div class="h-0.5 bg-red-500 w-4"></div>
+            </div>
+
+            <!-- Scrolling Content Area -->
+            <div id="scrolling-container" class="flex-grow overflow-y-scroll no-scrollbar relative px-4 sm:px-8 py-[40vh]">
+                <div id="prompter-text" class="text-4xl leading-relaxed font-bold text-center mx-auto max-w-3xl transition-all duration-200">
+                    <!-- Text injected here -->
+                </div>
+                <!-- Spacer at bottom to allow scrolling past last line -->
+                <div style="height: 50vh;"></div> 
+            </div>
+
+            <!-- Overlay Controls (Tap screen to toggle visibility) -->
+            <div id="prompter-controls" class="absolute bottom-0 left-0 w-full bg-gray-900/90 backdrop-blur-md border-t border-gray-700 p-4 pb-8 transition-transform duration-300 transform translate-y-0 flex flex-col gap-4">
+                
+                <!-- Sliders Row -->
+                <div class="grid grid-cols-2 gap-4 mb-2">
+                    <!-- Speed -->
+                    <div>
+                        <div class="flex justify-between text-xs text-gray-400 mb-1">
+                            <span>Speed</span>
+                            <span id="speed-val">2.00</span>
+                        </div>
+                        <input type="range" id="speed-slider" min="0" max="10" step="0.01" value="2.00" 
+                            class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                    </div>
+                    <!-- Font Size -->
+                    <div>
+                        <div class="flex justify-between text-xs text-gray-400 mb-1">
+                            <span>Font Size</span>
+                            <span id="size-val">4xl</span>
+                        </div>
+                        <input type="range" id="size-slider" min="1" max="7" step="1" value="4" 
+                            class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                    </div>
+                </div>
+
+                <!-- Main Buttons -->
+                <div class="flex items-center justify-between gap-2">
+                    <button id="exit-btn" class="p-4 rounded-full bg-gray-700 text-white hover:bg-gray-600 active:scale-95">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    
+                    <button id="mirror-btn" class="p-4 rounded-full bg-gray-700 text-white hover:bg-gray-600 active:scale-95" title="Mirror Text">
+                        <i class="fas fa-arrows-alt-h"></i>
+                    </button>
+
+                    <button id="restart-btn" class="p-4 rounded-full bg-gray-700 text-white hover:bg-gray-600 active:scale-95">
+                        <i class="fas fa-undo"></i>
+                    </button>
+
+                    <button id="play-pause-btn" class="flex-grow p-4 rounded-full bg-blue-600 text-white font-bold text-lg hover:bg-blue-500 active:scale-95 shadow-lg shadow-blue-500/30">
+                        <i class="fas fa-play" id="play-icon"></i>
+                        <i class="fas fa-pause hidden" id="pause-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- State ---
+        let isScrolling = false;
+        let scrollSpeed = 2; // Pixels per frame approx
+        let animationFrameId;
+        let isMirrored = false;
+        let wakeLock = null;
+
+        // --- Elements ---
+        const editorView = document.getElementById('editor-view');
+        const prompterView = document.getElementById('prompter-view');
+        const scriptInput = document.getElementById('script-input');
+        const prompterText = document.getElementById('prompter-text');
+        const scrollingContainer = document.getElementById('scrolling-container');
+        const controls = document.getElementById('prompter-controls');
+        
+        const startBtn = document.getElementById('start-btn');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const exitBtn = document.getElementById('exit-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const mirrorBtn = document.getElementById('mirror-btn');
+        
+        const speedSlider = document.getElementById('speed-slider');
+        const sizeSlider = document.getElementById('size-slider');
+        const speedVal = document.getElementById('speed-val');
+        const sizeVal = document.getElementById('size-val');
+        
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+
+        // --- Font Sizes Map (Tailwind classes) ---
+        const fontSizes = ['text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'text-6xl', 'text-7xl'];
+
+        // --- Initialization ---
+        function init() {
+            // Load saved text if any
+            const savedText = localStorage.getItem('prompter-text');
+            if (savedText) scriptInput.value = savedText;
+        }
+
+        // --- Core Functions ---
+
+        function startPrompter() {
+            const text = scriptInput.value.trim();
+            if (!text) {
+                alert("Please enter some text first!");
+                return;
+            }
+
+            // Save to local storage for convenience
+            localStorage.setItem('prompter-text', text);
+
+            // Setup Text
+            // Convert newlines to breaks for HTML
+            prompterText.innerHTML = text.replace(/\n/g, '<br><br>');
+            
+            // Switch Views
+            editorView.classList.add('hidden');
+            prompterView.classList.remove('hidden');
+
+            // Reset Scroll
+            scrollingContainer.scrollTop = 0;
+            
+            // Request Wake Lock (Keep screen on)
+            requestWakeLock();
+        }
+
+        function stopPrompter() {
+            isScrolling = false;
+            cancelAnimationFrame(animationFrameId);
+            releaseWakeLock();
+            
+            // Switch Views
+            prompterView.classList.add('hidden');
+            editorView.classList.remove('hidden');
+            
+            updatePlayPauseIcon();
+        }
+
+        function togglePlayPause() {
+            isScrolling = !isScrolling;
+            if (isScrolling) {
+                lastTimestamp = performance.now(); // Reset timestamp to prevent huge jump
+                // FIXED: Use requestAnimationFrame to start the loop so 'timestamp' is defined
+                animationFrameId = requestAnimationFrame(scrollLoop);
+            } else {
+                cancelAnimationFrame(animationFrameId);
+                // Show controls
+                controls.classList.remove('translate-y-full');
+            }
+            updatePlayPauseIcon();
+        }
+
+        function updatePlayPauseIcon() {
+            if (isScrolling) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                playPauseBtn.classList.replace('bg-blue-600', 'bg-yellow-600');
+                playPauseBtn.classList.replace('hover:bg-blue-500', 'hover:bg-yellow-500');
+            } else {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                playPauseBtn.classList.replace('bg-yellow-600', 'bg-blue-600');
+                playPauseBtn.classList.replace('hover:bg-yellow-500', 'hover:bg-blue-500');
+            }
+        }
+
+        // --- Scrolling Logic ---
+        // We use a high-precision timer instead of simple pixel addition to ensure smooth
+        // scrolling regardless of refresh rate (60hz vs 120hz screens)
+        let scrollAccumulator = 0;
+        let lastTimestamp = 0;
+
+        function scrollLoop(timestamp) {
+            if (!isScrolling) return;
+            
+            // Safety check: if timestamp is undefined (manual call), use performance.now()
+            if (!timestamp) timestamp = performance.now();
+            
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const deltaTime = timestamp - lastTimestamp;
+            lastTimestamp = timestamp;
+
+            // Speed logic: slider value corresponds to pixels per 16ms (approx 60fps)
+            // Adjust based on actual deltaTime
+            const pixelsPerFrame = parseFloat(speedSlider.value);
+            
+            // If speed is 0, don't scroll but keep loop alive
+            if (pixelsPerFrame > 0) {
+                 // Normalize speed to time passed. 
+                 // Base speed: slider value * (deltaTime / 16.66)
+                 const moveAmount = pixelsPerFrame * (deltaTime / 10); 
+                 
+                 scrollAccumulator += moveAmount;
+
+                 if (scrollAccumulator >= 1) {
+                     const pixelsToScroll = Math.floor(scrollAccumulator);
+                     scrollingContainer.scrollTop += pixelsToScroll;
+                     scrollAccumulator -= pixelsToScroll;
+                 }
+                 
+                 // Check if end reached (roughly)
+                 if (scrollingContainer.scrollTop + scrollingContainer.clientHeight >= scrollingContainer.scrollHeight - 10) {
+                     // Auto pause at end? Or just loop? Let's stop.
+                     isScrolling = false;
+                     updatePlayPauseIcon();
+                     cancelAnimationFrame(animationFrameId);
+                     return;
+                 }
+            }
+
+            animationFrameId = requestAnimationFrame(scrollLoop);
+        }
+
+        // --- Wake Lock API ---
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => {
+                        console.log('Screen Wake Lock released');
+                    });
+                }
+            } catch (err) {
+                console.log(`${err.name}, ${err.message}`);
+            }
+        }
+
+        function releaseWakeLock() {
+            if (wakeLock !== null) {
+                wakeLock.release()
+                    .then(() => { wakeLock = null; });
+            }
+        }
+
+        // --- Event Listeners ---
+        
+        startBtn.addEventListener('click', startPrompter);
+        
+        exitBtn.addEventListener('click', stopPrompter);
+        
+        playPauseBtn.addEventListener('click', () => {
+             // Reset timestamp on start
+             lastTimestamp = performance.now();
+             togglePlayPause();
+        });
+
+        restartBtn.addEventListener('click', () => {
+            scrollingContainer.scrollTo({ top: 0, behavior: 'smooth' });
+            scrollAccumulator = 0;
+        });
+
+        mirrorBtn.addEventListener('click', () => {
+            isMirrored = !isMirrored;
+            if (isMirrored) {
+                prompterText.classList.add('mirrored');
+                mirrorBtn.classList.replace('bg-gray-700', 'bg-blue-600');
+            } else {
+                prompterText.classList.remove('mirrored');
+                mirrorBtn.classList.replace('bg-blue-600', 'bg-gray-700');
+            }
+        });
+
+        // Toggle Controls visibility on tap
+        scrollingContainer.addEventListener('click', () => {
+            controls.classList.toggle('translate-y-full');
+        });
+
+        // Speed Slider
+        speedSlider.addEventListener('input', (e) => {
+            scrollSpeed = parseFloat(e.target.value);
+            speedVal.innerText = scrollSpeed.toFixed(2);
+        });
+
+        // Size Slider
+        sizeSlider.addEventListener('input', (e) => {
+            const index = parseInt(e.target.value);
+            // Remove all font classes
+            fontSizes.forEach(cls => prompterText.classList.remove(cls));
+            // Add new one
+            prompterText.classList.add(fontSizes[index]);
+            sizeVal.innerText = index;
+        });
+
+        // Sample Text Loader
+        window.loadSampleText = function() {
+            const sample = "Welcome to your new Teleprompter!\n\nThis is a sample text to help you get started.\n\nYou can adjust the speed of the scrolling text using the slider at the bottom.\n\nYou can also change the font size to make it easier to read on your phone.\n\nGood luck with your English subject presentation!\n\nJust keep breathing and speak slowly.\n\nYou've got this!";
+            scriptInput.value = sample;
+        }
+
+        // Initialize
+        init();
+        
+        // Handle visibility change (tab switching) to release wake lock or pause
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && !editorView.classList.contains('hidden')) {
+                // potentially re-request lock if we were in prompter mode?
+                // simplified: just pause if we tab away
+                if (isScrolling) togglePlayPause();
+            }
+        });
+
+    </script>
+</body>
+</html>
